@@ -1,0 +1,12 @@
+Content
+=======
+
+.. toctree::
+   :numbered:
+   :maxdepth: 2
+
+   introduction
+
+.. include:: introduction.rst
+
+   Indices and tables

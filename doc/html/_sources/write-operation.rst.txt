@@ -1,0 +1,15 @@
+Write operation
+===============
+
+
+Ecobee track system are saved within a **YAML** file format.
+
+This markup language provides an human reading representation of data saved.
+However, as the file can be unintentionally modifiable, a **checksum** has been added for detecting any corrupted information.
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+   

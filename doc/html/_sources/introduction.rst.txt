@@ -1,0 +1,258 @@
+Introduction
+============
+
+Objective
+---------
+
+This document is intended to gather information encoutered while designing a software program to control a simulation of a train traffic and signaling system.
+
+
+Code guidlines
+==============
+
+At Ecobee we are considering consistency has a positive impact on the quality of the program.
+Therefore the program track-helper follows |code_style|.
+
+Moreover, Doxygen markup are used for code source documentation enhancing efficiency and make it easily be maintained.
+
+.. |code_style| raw:: html
+
+   <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html" target="_blank">Linux kernel coding sytle</a>
+
+Architecture
+============
+
+Overall architecture
+--------------------
+
+Track software is compound of :
+ 
+* Program **track-helper** is the core system. It aims to creates a track system map by providing:
+
+   - an user command line interface accessible from standard console input (stdin)
+   - a POSIX message queue interface for communcation with interdace listed below
+* The graphical interface **track-ui** improves user experience by presenting track-helper features in a simple but efficient manner. 
+
+.. image:: images/track-ui.png
+  :scale: 50 %
+  :align: center
+  :alt: track-ui
+  
+.. note::
+   A grahical interface embedded in core process generally leads to better performance.
+   However, due to the low umont of command exhanged, we decided to deport the HMI. Therefore, this instance could detect any core crach, and then reload it in full transparency.   
+   
+Communication inter-process
+===========================
+
+Core program track-helper and its graphical interface track-ui are communicating through **POSIX message queue**:
+
+* synchronous messages: track-ui sends a message to track-helper which gives reply to the track-ui containing operation status (and optionally data requested).
+* asynchronous messages: At any time, track-helper could send event message (simulation stopped,...) which does not requiere any acknowledge.
+
+
+Thread synchronization
+======================
+
+The interface *track-ui* is using a thread for catching message coming from track-helper.
+For synchronisation purpose, each message read is pushing to an internal FIFO.
+
+.. code-block:: Python
+   :emphasize-lines: 5
+
+   def read_thread(self):
+       while self.threading:
+           try:
+               (message, priority) = self.mq["receive"].receive()
+               self.q_msg.put(message)
+           
+           except sysv_ipc.ExistentialError as e:
+               DBG("message queue error " + str(e))
+               break
+                
+Write operation
+===============
+
+File format
+-----------
+
+the command line 'write' saves the track system in JSON format.
+The following snippet demonstates how the system could be representated within file :
+
+.. code-block:: C
+
+   [
+     {
+       "tracks": [
+         {
+           "name_len": 7, 
+           "name": "track#1", 
+           "connections": [
+             {
+               "type": "continuation", 
+               "location": "est", 
+               "with_track": "track#3"
+             }, 
+             {
+               "type": "junction", 
+               "location": "west", 
+               "with_track": [
+                 "track#4", 
+                 "track#5"
+               ]
+             }
+           ], 
+           "signals": [
+             {
+               "location": "est", 
+               "presence": false
+             }, 
+             {
+               "status": "Green", 
+               "location": "west", 
+               "presence": true
+             }
+           ]
+         }
+       ]
+     }
+   ]
+   
+Security
+--------
+
+As track system contains sensitive information, an encryption method is higly recommanded.
+
+System output
+=============
+
+Graphical interface track-ui presents a container aims to print track system evoliuton, according to this workflow:
+
+#. track-helper generates tracks simulation continously
+#. every simulation messages are forwading to track-ui by using IPC message queue
+#. track-helper redirects stdout to its own stdout object
+#. track-helper writes message received
+#. custom class stdout received the message and send a signal
+#. signal is catched and then print to container (QTextEdit)
+
+.. code-block:: Python
+
+   class customStdout(QObject):
+   '''
+   Catching stdout write for a redirection to pyQt contqiner
+   '''
+       newStdoutWrite = pyqtSignal(str)
+   
+       def __init__(self, edit, out=None):
+   
+           # Initialize the customStdout as a QObject so it can emit signals
+           QObject.__init__(self)
+
+           self.edit = edit
+           self.out = out
+
+       def flush(self):
+           """ ignoring sys.stdout.flush() call """
+   
+       def write(self, m):
+           """ ignoring sys.stdout.write() call """
+           if m == '\n':
+               '''
+               discarded print new line write
+               https://github.com/python/cpython/blob/2.7/Python/bltinmodule.c#L1693
+               '''
+               return
+           self.newStdoutWrite.emit(m)
+   ...
+   def stdout_redirection(self):
+       sys.stdout = OutLog(self.outputtext, sys.stdout)
+       out = customStdout(self.outputtext, sys.stdout)
+       sys.stdout.newStdoutWrite.connect(self.process_rawdata)
+   
+Memory usage
+============
+
+Some objetcs (train, connection) are dynamically allocated as per user action.
+
+Using malloc is a bad practice in embedded system as its usage could leads memory segmentation or heap overflow.
+Statically allocating a buffer (memory pool), and redirecting all the dynamic memory requirements to that array should be prefered.
+
+However, for limiting malloc downside, we creating a memory manager mem.c responsible to:
+
+* allocating memory
+* keeping track of memory owner (function caller)
+* releasing memory
+
+This is realized thanks to code below:
+
+- file mem.h
+
+.. code-block:: C
+
+   error_code _mem_new(void **ptr, size_t len, const char* caller);
+   /**
+    * @brief memory allocation
+    * @param ptr pointer to memory allocated
+    * @param len memory size to allocate
+    *
+    * @return 0 for success, otherwise please check @ref error_code
+    */
+   #define mem_new(ptr, len) _mem_new(ptr, len, __FUNCTION__)
+
+- file mem.c
+
+.. code-block:: C
+
+   struct mem_info {
+   	struct {
+   		size_t len;
+   		const char *owner;
+   		struct mem_info *next;
+   	} header;
+   	uint8_t ptr[0];
+   };
+   
+   static struct mem_info *head;
+   
+   error_code _mem_new(void **ptr, size_t len, const char* caller)
+   {
+   	struct mem_info *mem;
+   
+   	mem = malloc(sizeof(mem->header) + len);
+   	if (!mem)
+   		return ERROR_MEM;
+   
+   	memset(mem, 0, sizeof(mem->header) + len);
+   	mem->header.len = len;
+   	mem->header.owner = caller;
+   	mem->header.next = NULL;
+   	if (!head) {
+   		head = mem;
+   	} else {
+   		struct mem_info *current;
+   
+   		current = head;
+   		while (current->header.next != NULL) {
+   			current = current->header.next;
+   		}
+   		current->header.next = mem;
+   	}
+   
+   	*ptr = mem->ptr;
+   
+   	return SUCCESS;
+   }
+
+The command 'mem-info' provides a snapshot of dynamic memory usage (heap) 
+
+Tests
+=====
+
+Commands exposes by track-helper must be automatically tested as per an unit test validation.
+Dynamically adding tracks, trains, signals should be sequentially realized without any issue.
+False negative and memory usage test (with command *mem-info*) shall also be implemented.
+
+License
+=======
+
+Copyright (c) 2019 Jonathan Gelie. All Rights Reserved.

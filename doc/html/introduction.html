@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. Introduction &mdash; Embedded Case Study  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Content" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Embedded Case Study
+          
+
+          
+            
+            <img src="_static/ecobee_240.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#objective">1.1. Objective</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#code-guidlines">2. Code guidlines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#architecture">3. Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overall-architecture">3.1. Overall architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#communication-inter-process">4. Communication inter-process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#thread-synchronization">5. Thread synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#write-operation">6. Write operation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#file-format">6.1. File format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security">6.2. Security</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#system-output">7. System output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#memory-usage">8. Memory usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#tests">9. Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#license">10. License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Embedded Case Study</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>1. Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objective">
+<h2>1.1. Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h2>
+<p>This document is intended to gather information encoutered while designing a software program to control a simulation of a train traffic and signaling system.</p>
+</div>
+</div>
+<div class="section" id="code-guidlines">
+<h1>2. Code guidlines<a class="headerlink" href="#code-guidlines" title="Permalink to this headline">¶</a></h1>
+<p>At Ecobee we are considering consistency has a positive impact on the quality of the program.
+Therefore the program track-helper follows <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html" target="_blank">Linux kernel coding sytle</a>.</p>
+<p>Moreover, Doxygen markup are used for code source documentation enhancing efficiency and make it easily be maintained.</p>
+</div>
+<div class="section" id="architecture">
+<h1>3. Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overall-architecture">
+<h2>3.1. Overall architecture<a class="headerlink" href="#overall-architecture" title="Permalink to this headline">¶</a></h2>
+<p>Track software is compound of :</p>
+<ul>
+<li><p class="first">Program <strong>track-helper</strong> is the core system. It aims to creates a track system map by providing:</p>
+<blockquote>
+<div><ul class="simple">
+<li>an user command line interface accessible from standard console input (stdin)</li>
+<li>a POSIX message queue interface for communcation with interdace listed below</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">The graphical interface <strong>track-ui</strong> improves user experience by presenting track-helper features in a simple but efficient manner.</p>
+</li>
+</ul>
+<a class="reference internal image-reference" href="_images/track-ui.png"><img alt="track-ui" class="align-center" src="_images/track-ui.png" style="width: 640.0px; height: 455.0px;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A grahical interface embedded in core process generally leads to better performance.
+However, due to the low umont of command exhanged, we decided to deport the HMI. Therefore, this instance could detect any core crach, and then reload it in full transparency.</p>
+</div>
+</div>
+</div>
+<div class="section" id="communication-inter-process">
+<h1>4. Communication inter-process<a class="headerlink" href="#communication-inter-process" title="Permalink to this headline">¶</a></h1>
+<p>Core program track-helper and its graphical interface track-ui are communicating through <strong>POSIX message queue</strong>:</p>
+<ul class="simple">
+<li>synchronous messages: track-ui sends a message to track-helper which gives reply to the track-ui containing operation status (and optionally data requested).</li>
+<li>asynchronous messages: At any time, track-helper could send event message (simulation stopped,…) which does not requiere any acknowledge.</li>
+</ul>
+</div>
+<div class="section" id="thread-synchronization">
+<h1>5. Thread synchronization<a class="headerlink" href="#thread-synchronization" title="Permalink to this headline">¶</a></h1>
+<p>The interface <em>track-ui</em> is using a thread for catching message coming from track-helper.
+For synchronisation purpose, each message read is pushing to an internal FIFO.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">threading</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">priority</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mq</span><span class="p">[</span><span class="s2">&quot;receive&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+<span class="hll">            <span class="bp">self</span><span class="o">.</span><span class="n">q_msg</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span>
+        <span class="k">except</span> <span class="n">sysv_ipc</span><span class="o">.</span><span class="n">ExistentialError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">DBG</span><span class="p">(</span><span class="s2">&quot;message queue error &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">break</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="write-operation">
+<h1>6. Write operation<a class="headerlink" href="#write-operation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="file-format">
+<h2>6.1. File format<a class="headerlink" href="#file-format" title="Permalink to this headline">¶</a></h2>
+<p>the command line ‘write’ saves the track system in JSON format.
+The following snippet demonstates how the system could be representated within file :</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s">&quot;tracks&quot;</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">&quot;name_len&quot;</span><span class="o">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;track#1&quot;</span><span class="p">,</span>
+        <span class="s">&quot;connections&quot;</span><span class="o">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s">&quot;type&quot;</span><span class="o">:</span> <span class="s">&quot;continuation&quot;</span><span class="p">,</span>
+            <span class="s">&quot;location&quot;</span><span class="o">:</span> <span class="s">&quot;est&quot;</span><span class="p">,</span>
+            <span class="s">&quot;with_track&quot;</span><span class="o">:</span> <span class="s">&quot;track#3&quot;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s">&quot;type&quot;</span><span class="o">:</span> <span class="s">&quot;junction&quot;</span><span class="p">,</span>
+            <span class="s">&quot;location&quot;</span><span class="o">:</span> <span class="s">&quot;west&quot;</span><span class="p">,</span>
+            <span class="s">&quot;with_track&quot;</span><span class="o">:</span> <span class="p">[</span>
+              <span class="s">&quot;track#4&quot;</span><span class="p">,</span>
+              <span class="s">&quot;track#5&quot;</span>
+            <span class="p">]</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s">&quot;signals&quot;</span><span class="o">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s">&quot;location&quot;</span><span class="o">:</span> <span class="s">&quot;est&quot;</span><span class="p">,</span>
+            <span class="s">&quot;presence&quot;</span><span class="o">:</span> <span class="nb">false</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s">&quot;status&quot;</span><span class="o">:</span> <span class="s">&quot;Green&quot;</span><span class="p">,</span>
+            <span class="s">&quot;location&quot;</span><span class="o">:</span> <span class="s">&quot;west&quot;</span><span class="p">,</span>
+            <span class="s">&quot;presence&quot;</span><span class="o">:</span> <span class="nb">true</span>
+          <span class="p">}</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="security">
+<h2>6.2. Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
+<p>As track system contains sensitive information, an encryption method is higly recommanded.</p>
+</div>
+</div>
+<div class="section" id="system-output">
+<h1>7. System output<a class="headerlink" href="#system-output" title="Permalink to this headline">¶</a></h1>
+<p>Graphical interface track-ui presents a container aims to print track system evoliuton, according to this workflow:</p>
+<ol class="arabic simple">
+<li>track-helper generates tracks simulation continously</li>
+<li>every simulation messages are forwading to track-ui by using IPC message queue</li>
+<li>track-helper redirects stdout to its own stdout object</li>
+<li>track-helper writes message received</li>
+<li>custom class stdout received the message and send a signal</li>
+<li>signal is catched and then print to container (QTextEdit)</li>
+</ol>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">customStdout</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Catching stdout write for a redirection to pyQt contqiner</span>
+<span class="sd">&#39;&#39;&#39;</span>
+    <span class="n">newStdoutWrite</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edit</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="c1"># Initialize the customStdout as a QObject so it can emit signals</span>
+        <span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">edit</span> <span class="o">=</span> <span class="n">edit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ignoring sys.stdout.flush() call &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; ignoring sys.stdout.write() call &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            discarded print new line write</span>
+<span class="sd">            https://github.com/python/cpython/blob/2.7/Python/bltinmodule.c#L1693</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newStdoutWrite</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="k">def</span> <span class="nf">stdout_redirection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">OutLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputtext</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">customStdout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputtext</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">newStdoutWrite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_rawdata</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="memory-usage">
+<h1>8. Memory usage<a class="headerlink" href="#memory-usage" title="Permalink to this headline">¶</a></h1>
+<p>Some objetcs (train, connection) are dynamically allocated as per user action.</p>
+<p>Using malloc is a bad practice in embedded system as its usage could leads memory segmentation or heap overflow.
+Statically allocating a buffer (memory pool), and redirecting all the dynamic memory requirements to that array should be prefered.</p>
+<p>However, for limiting malloc downside, we creating a memory manager mem.c responsible to:</p>
+<ul class="simple">
+<li>allocating memory</li>
+<li>keeping track of memory owner (function caller)</li>
+<li>releasing memory</li>
+</ul>
+<p>This is realized thanks to code below:</p>
+<ul class="simple">
+<li>file mem.h</li>
+</ul>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">error_code</span> <span class="nf">_mem_new</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">caller</span><span class="p">);</span>
+<span class="cm">/**</span>
+<span class="cm"> * @brief memory allocation</span>
+<span class="cm"> * @param ptr pointer to memory allocated</span>
+<span class="cm"> * @param len memory size to allocate</span>
+<span class="cm"> *</span>
+<span class="cm"> * @return 0 for success, otherwise please check @ref error_code</span>
+<span class="cm"> */</span>
+<span class="cp">#define mem_new(ptr, len) _mem_new(ptr, len, __FUNCTION__)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>file mem.c</li>
+</ul>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">mem_info</span> <span class="p">{</span>
+     <span class="k">struct</span> <span class="p">{</span>
+             <span class="kt">size_t</span> <span class="n">len</span><span class="p">;</span>
+             <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">owner</span><span class="p">;</span>
+             <span class="k">struct</span> <span class="n">mem_info</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+     <span class="p">}</span> <span class="n">header</span><span class="p">;</span>
+     <span class="kt">uint8_t</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">};</span>
+
+<span class="k">static</span> <span class="k">struct</span> <span class="n">mem_info</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
+
+<span class="n">error_code</span> <span class="nf">_mem_new</span><span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">caller</span><span class="p">)</span>
+<span class="p">{</span>
+     <span class="k">struct</span> <span class="n">mem_info</span> <span class="o">*</span><span class="n">mem</span><span class="p">;</span>
+
+     <span class="n">mem</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">)</span> <span class="o">+</span> <span class="n">len</span><span class="p">);</span>
+     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mem</span><span class="p">)</span>
+             <span class="k">return</span> <span class="n">ERROR_MEM</span><span class="p">;</span>
+
+     <span class="n">memset</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">mem</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">)</span> <span class="o">+</span> <span class="n">len</span><span class="p">);</span>
+     <span class="n">mem</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">len</span> <span class="o">=</span> <span class="n">len</span><span class="p">;</span>
+     <span class="n">mem</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">caller</span><span class="p">;</span>
+     <span class="n">mem</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">)</span> <span class="p">{</span>
+             <span class="n">head</span> <span class="o">=</span> <span class="n">mem</span><span class="p">;</span>
+     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+             <span class="k">struct</span> <span class="n">mem_info</span> <span class="o">*</span><span class="n">current</span><span class="p">;</span>
+
+             <span class="n">current</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+             <span class="k">while</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">next</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+                     <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">next</span><span class="p">;</span>
+             <span class="p">}</span>
+             <span class="n">current</span><span class="o">-&gt;</span><span class="n">header</span><span class="p">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">mem</span><span class="p">;</span>
+     <span class="p">}</span>
+
+     <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">mem</span><span class="o">-&gt;</span><span class="n">ptr</span><span class="p">;</span>
+
+     <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The command ‘mem-info’ provides a snapshot of dynamic memory usage (heap)</p>
+</div>
+<div class="section" id="tests">
+<h1>9. Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h1>
+<p>Commands exposes by track-helper must be automatically tested as per an unit test validation.
+Dynamically adding tracks, trains, signals should be sequentially realized without any issue.
+False negative and memory usage test (with command <em>mem-info</em>) shall also be implemented.</p>
+</div>
+<div class="section" id="license">
+<h1>10. License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>Copyright (c) 2019 Jonathan Gelie. All Rights Reserved.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Content" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Jonathan Gelie. All Rights Reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
