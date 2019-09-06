@@ -9,6 +9,8 @@ git clone git@github.com:jonathangelie/track-sys.git
 
 ### Documentation
 
+html documentation can be accessible [here](https://www.jonathangelie.com/track-sys/index.html) or by using following command:
+
 ```shell
 xdg-open track-sys/doc/html/index.html
 ```
@@ -50,6 +52,8 @@ src/
 
 ### Graphical interface
 
+![track-ui](./images/track-ui.png)
+
 ```shell
 ui/
 ├── cmd.py
@@ -59,6 +63,7 @@ ui/
 ```
 
 ## Coding style
+
 [Linux kernel coding sytle](https://www.kernel.org/doc/html/v4.10/process/coding-style.html).
 
 ## License

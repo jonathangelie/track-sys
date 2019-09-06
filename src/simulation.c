@@ -57,7 +57,8 @@ static void simulation_refresh_train(const struct train *t)
 	if (t->on_track->sign[t->dir] &&  state_red == t->on_track->sign[t->dir]->state) {
 		DBG_INFO("signal RED for %s on track\n", t->name, t->on_track->name);
 		t->on_track->sign[t->dir]->duration--;
-		train_set_state(t->name, state_stopped);
+		if (!t->on_track->sign[t->dir]->duration)
+			signal_set_state(t->on_track->sign[t->dir], state_green);
 		return;
 	}
 
